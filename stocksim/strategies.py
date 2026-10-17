@@ -2,6 +2,19 @@
 (same shape) using only data up to and including each row's close."""
 import numpy as np
 import pandas as pd
+from pandas.tseries.holiday import USFederalHolidayCalendar
+from pandas.tseries.offsets import CustomBusinessDay
+
+_NEXT_TRADING_DAY = CustomBusinessDay(calendar=USFederalHolidayCalendar())
+
+
+def is_month_end(index):
+    """True on the last trading day of each month, decided without peeking at
+    future rows: a day is month-end if the next trading day is in a new month.
+    (Grouping by month and taking the max date marks the latest row of an
+    unfinished month as month-end, which made live runs re-rank every day.)"""
+    nxt = index[1:].append(pd.DatetimeIndex([index[-1] + _NEXT_TRADING_DAY]))
+    return pd.Series(nxt.month != index.month, index=index)
 
 
 def buy_and_hold(close, ticker="SPY"):
@@ -29,7 +42,7 @@ def momentum_rotation(close, lookback=126, top=2):
     """Once a month: rank assets by their past `lookback`-day return, hold the
     top `top` equally, but only the ones whose return is positive (rest -> cash)."""
     ret = close / close.shift(lookback) - 1
-    month_end = close.index.to_series().groupby(close.index.to_period("M")).transform("max") == close.index
+    month_end = is_month_end(close.index)
     w = pd.DataFrame(np.nan, index=close.index, columns=close.columns)
     for d in close.index[month_end]:
         r = ret.loc[d].dropna()
