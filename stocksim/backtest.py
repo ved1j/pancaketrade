@@ -11,6 +11,8 @@ left over sits in cash earning 0%.
 import numpy as np
 import pandas as pd
 
+from .strategies import CASH
+
 
 def run(weights, opens, cost_bps=5.0, delay=1):
     """Simulate a weights DataFrame. Returns a daily Series of net returns.
@@ -34,7 +36,8 @@ def run(weights, opens, cost_bps=5.0, delay=1):
     net = gross - turnover * cost_bps / 1e4
     net = net.iloc[:-1]  # last day has no next open
     net.attrs["turnover"] = turnover.iloc[:-1]
-    net.attrs["exposure"] = held.sum(axis=1).iloc[:-1]
+    # Exposure = share in risky assets; the cash-like ETF counts as cash.
+    net.attrs["exposure"] = held.drop(columns=CASH, errors="ignore").sum(axis=1).iloc[:-1]
     return net
 
 

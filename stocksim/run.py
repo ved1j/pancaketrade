@@ -6,7 +6,7 @@ import pandas as pd
 from . import backtest, checks, data
 from .strategies import STRATEGIES
 
-UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "TLT", "GLD"]
+UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "TLT", "GLD", "SHY"]
 
 
 def main():

@@ -72,7 +72,7 @@ def log_orders(rows):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--strategy", default="momentum_rotation", choices=list(STRATEGIES))
+    p.add_argument("--strategy", default="momentum_v2", choices=list(STRATEGIES))
     p.add_argument("--submit", action="store_true", help="place orders (paper only)")
     p.add_argument("--equity", type=float, help="dry run without keys: pretend account size")
     args = p.parse_args()
